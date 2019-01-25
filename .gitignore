@@ -62,3 +62,6 @@ typings/
 
 # database config file
 .database.config.ts
+
+# test files
+*.test.ts
