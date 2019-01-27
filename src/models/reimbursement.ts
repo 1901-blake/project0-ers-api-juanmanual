@@ -2,7 +2,7 @@
  * used to represent a single reimbursement that 
  * an employee would submit
  */
-export default class Reimbursement {
+export class Reimbursement {
   reimbursementId: number
   author: number
   amount: number

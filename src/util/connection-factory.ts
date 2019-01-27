@@ -5,7 +5,7 @@ import * as Postgres from './.database.config'
  * throughout the application
  */
 
-export class SessionFactory {
+export class ConnectionFactory {
   static cred = {
     database: Postgres.connectionDB,
     host: Postgres.connectionEndpoint,

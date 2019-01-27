@@ -1,7 +1,7 @@
 /**
  * The ReimbursementStatus model is used to track the status of reimbursements. Status possibilities are Pending, Approved, or Denied
  */
-export default class ReimbursementStatus {
+export class ReimbursementStatus {
   statusId: number
   status: string
   constructor (statusId: number, status: string)

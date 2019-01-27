@@ -1,8 +1,8 @@
-import Role from './role'
+import {Role} from './role'
 /** 
  * The User model keeps track of users information.
  */
-export default class User {
+export class User {
   userId: number
   username: string
   password: string

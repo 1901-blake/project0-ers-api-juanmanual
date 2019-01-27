@@ -3,7 +3,7 @@
  * what kind of reimbursement is being submitted. 
  * Type possibilities are Lodging, Travel, Food, or Other.
  */
-export default class ReimbursementType {
+export class ReimbursementType {
   typeId: number
   type: string
   constructor (typeId: number, type: string) {
