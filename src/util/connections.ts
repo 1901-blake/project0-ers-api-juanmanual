@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
-import * as env from '../env/config';
+import * as env from '../.env/config';
+
 
 export const connections = new Pool({
   user: env.dbUsername,
@@ -7,5 +8,5 @@ export const connections = new Pool({
   database: env.dbName,
   password: env.dbPassword,
   port: env.dbPort,
-  max: 3
+  max: 7
 });
