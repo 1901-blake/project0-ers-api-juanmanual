@@ -64,4 +64,4 @@ typings/
 .database.config.ts
 
 # test files
-*.test.ts
+
