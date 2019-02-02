@@ -14,10 +14,24 @@ export async function getById (id: number): Promise<Object> {
   }
 }
 
-export async function getAll (): Promise<Object[]> {
-  console.log('trying to find all');
+export async function authenticate(username: string, password: string): Promise<boolean> {
   const connection = await connections.connect();
-  console.log('connection established');
+
+  try {
+    const result = await connection.query(
+      'select count() from ers_user where username=$1 and password=$2',
+      [username, password]
+    );
+    return result.rows[0];
+
+  } finally {
+    connection.release();
+  }
+
+}
+
+export async function getAll (): Promise<Object[]> {
+  const connection = await connections.connect();
   try {
     const result = await connection.query(
         'select * from ers_user'

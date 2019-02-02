@@ -23,7 +23,6 @@ app.post('/login', (req, res, next) => {
 
   jwt.sign(username, env.tokenSecret);
   console.log('processing ', username, password);
-
   res.json({username});
 
 });
