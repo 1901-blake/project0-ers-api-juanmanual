@@ -1,0 +1,1462 @@
+{
+	"info": {
+		"_postman_id": "708d13c7-d2b0-4c1b-b208-0881cc1bf757",
+		"name": "project-0-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "reimbursements",
+			"item": [
+				{
+					"name": "find reimbursements by statusid",
+					"item": [
+						{
+							"name": "finance manager may find reimbursements by status id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "74164a10-5774-4eea-b4b8-6f899920bd80",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || 'potato'",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('fin_man_name') || '',",
+											"\t'userid': pm.variables.get('fin_man_id') || 0,",
+											"\t'role': pm.variables.get('fin_man_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "3e5e1454-3044-411d-9d7c-c13cf8534bbd",
+										"exec": [
+											"pm.test(\"response must have a json body\", function () {",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements/status/{{status_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements",
+										"status",
+										"{{status_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user 1 cannot find reimbursements by status id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "d7c1f4a9-b49b-42e6-b248-16e3f9b85ef6",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('user_1_name') || '',",
+											"\t'userid': pm.variables.get('user_1_id') || 0,",
+											"\t'role': pm.variables.get('user_1_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "56b19e40-9881-40f2-9f28-c45c40f1b104",
+										"exec": [
+											"pm.test(\"Returns status signifying forbidden\", function () {",
+											"    pm.response.to.have.status(401);",
+											"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements/status/{{status_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements",
+										"status",
+										"{{status_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "finance manager my find reimbursements by status id, but other users cannot",
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "find reimbursments by userid",
+					"item": [
+						{
+							"name": "finance manager can find reimbursements by userid",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "8254352b-7590-488c-ab71-39433b24136f",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('fin_man_name') || '',",
+											"\t'userid': pm.variables.get('fin_man_id') || 0,",
+											"\t'role': pm.variables.get('fin_man_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "ff4e0c8c-8092-4a7a-bf81-c469ceb0cff7",
+										"exec": [
+											"pm.test(\"response must have a json body\", function () {",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements/author/userid/{{user_1_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements",
+										"author",
+										"userid",
+										"{{user_1_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user 1 cannot find reimbursements by userid",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "224fb7ca-b42a-4ca4-bcf2-47cfcf100424",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('user_1_name') || '',",
+											"\t'userid': pm.variables.get('user_1_id') || 0,",
+											"\t'role': pm.variables.get('user_1_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "c97bcf75-8b09-4fd1-8f88-a03833bfe826",
+										"exec": [
+											"pm.test(\"Returns status signifying forbidden\", function () {",
+											"    pm.response.to.have.status(401);",
+											"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements/author/userid/{{user_1_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements",
+										"author",
+										"userid",
+										"{{user_1_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "submit reimbursement",
+					"item": [
+						{
+							"name": "user 1 may submit reimbursement",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "72f84cde-3215-4d02-b538-274ab47f6951",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('user_1_name') || '',",
+											"\t'userid': pm.variables.get('user_1_id') || 0,",
+											"\t'role': pm.variables.get('user_1_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "1548e6c7-4049-45ba-8c32-9b8dd2c40b4d",
+										"exec": [
+											"pm.test(\"response must have a json body\", function () {",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});",
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"reimbursementid\": \"0\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "unidentified user may not submit reimbursement",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "b7313de0-d7e6-4bf0-b0d3-dd07158d8ea4",
+										"exec": [
+											"pm.test(\"Returns status signifying forbidden\", function () {",
+											"    pm.response.to.have.status(401);",
+											"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"reimbursementid\" : \"0\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/reimbursements",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reimbursements"
+									]
+								},
+								"description": "users with no userid should not be allowed to submit this type of request"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			],
+			"description": "mocks the reimbursements router"
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "find users by id",
+					"item": [
+						{
+							"name": "Finance admin can find user1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "dc2cf5e3-8562-4c4b-980d-2506f12ca055",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('fin_man_name') || '',",
+											"\t'userid': pm.variables.get('fin_man_id') || 0,",
+											"\t'role': pm.variables.get('fin_man_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "c813f96b-4793-4cb9-a900-9c1b1057da87",
+										"exec": [
+											"pm.test(\"response must have a json body\", function () {",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/users/{{user_1_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users",
+										"{{user_1_id}}"
+									]
+								},
+								"description": "allows finance managers to access any user"
+							},
+							"response": []
+						},
+						{
+							"name": "User 1 can find user 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "bf210f4c-343b-4090-956f-a43606b9ec51",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('user_1_name') || '',",
+											"\t'userid': pm.variables.get('user_1_id') || 0,",
+											"\t'role': pm.variables.get('user_1_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "4bcc2fec-f99a-4344-9e36-b748954f287e",
+										"exec": [
+											"pm.test(\"response must have a body\", function () {",
+											"",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/users/{{user_1_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users",
+										"{{user_1_id}}"
+									]
+								},
+								"description": "allows a user to access their own id"
+							},
+							"response": []
+						},
+						{
+							"name": "User 2 cannot find user1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "1f3fe2ae-c8df-4b6a-8fe1-fbd24ab8dd6c",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t",
+											"\t'sub': pm.variables.get('user_2_name') || '',",
+											"\t'userid': pm.variables.get('user_2_id') || 0,",
+											"\t'role': pm.variables.get('user_2_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "97dc76a5-e7fb-4310-8616-adfcba94e325",
+										"exec": [
+											"pm.test(\"Returns status signifying forbidden\", function () {",
+											"    pm.response.to.have.status(401);",
+											"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_signed}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/users/{{user_1_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users",
+										"{{user_1_id}}"
+									]
+								},
+								"description": "allows a user to access their own id"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "find all users",
+					"item": [
+						{
+							"name": "user 1 cannot find all users",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "0b05b494-7b6b-48c8-ab6a-18b9ed9c7202",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t'sub': pm.environment.get('user_1_name') || '',",
+											"\t'role': pm.variables.get('user_1_role') || ''",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "c9885db7-e212-4d8c-adec-2bd60177bed1",
+										"exec": [
+											"pm.test(\"Returns status signifying forbidden\", function () {",
+											"    pm.response.to.have.status(401);",
+											"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users"
+									]
+								},
+								"description": "Returns an array of user objects"
+							},
+							"response": []
+						},
+						{
+							"name": "finance manager can find all users",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "0bf4a003-dcd3-44cb-b7b1-4a48ddb67a88",
+										"exec": [
+											"// JWT generation script adapted from",
+											"// https://gist.github.com/corbanb/db03150abbe899285d6a86cc480f674d",
+											"",
+											"var jwtSecret = pm.variables.get('jwt_secret') || ''",
+											"",
+											"// Set headers for JWT",
+											"var header = {",
+											"\t'typ': 'JWT',",
+											"\t'alg': 'HS256'",
+											"};",
+											"",
+											"// Prepare timestamp in seconds",
+											"var currentTimestamp = Math.floor(Date.now() / 1000)",
+											"",
+											"var data = {",
+											"\t'iat': currentTimestamp,",
+											"\t'exp': currentTimestamp + 30, // expiry time is 30 seconds from time of creation",
+											"\t'jti': 'jwt_nonce',",
+											"\t'sub': pm.environment.get('fin_man_name') || '',",
+											"\t'role': pm.variables.get('fin_man_role')",
+											"}",
+											"",
+											"",
+											"function base64url(source) {",
+											"    // Encode in classical base64",
+											"    encodedSource = CryptoJS.enc.Base64.stringify(source)",
+											"    ",
+											"    // Remove padding equal characters",
+											"    encodedSource = encodedSource.replace(/=+$/, '')",
+											"    ",
+											"    // Replace characters according to base64url specifications",
+											"    encodedSource = encodedSource.replace(/\\+/g, '-')",
+											"    encodedSource = encodedSource.replace(/\\//g, '_')",
+											"    ",
+											"    return encodedSource",
+											"}",
+											"",
+											"// encode header",
+											"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header))",
+											"var encodedHeader = base64url(stringifiedHeader)",
+											"",
+											"// encode data",
+											"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data))",
+											"var encodedData = base64url(stringifiedData)",
+											"",
+											"// build token",
+											"var token = `${encodedHeader}.${encodedData}`",
+											"",
+											"// sign token",
+											"var signature = CryptoJS.HmacSHA256(token, jwtSecret)",
+											"signature = base64url(signature)",
+											"var signedToken = `${token}.${signature}`",
+											"",
+											"pm.environment.set('jwt_signed', signedToken)",
+											"console.log('Signed and encoded JWT', signedToken)"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "73659ce3-bc64-4755-9021-34e286a973b3",
+										"exec": [
+											"pm.test(\"response must have a json body\", function () {",
+											"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users"
+									]
+								},
+								"description": "Returns an array of user objects"
+							},
+							"response": []
+						}
+					],
+					"description": "Only finance manager should be allowed to find all users",
+					"_postman_isSubFolder": true
+				}
+			],
+			"description": "mocks the user router"
+		},
+		{
+			"name": "login",
+			"item": [
+				{
+					"name": "user 1 can login with correct password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ecf5ba0c-bab7-494d-b58b-4a61f6a77751",
+								"exec": [
+									"pm.test(\"response has a body\", function () {",
+									"     pm.response.to.be.json;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"user\": \"{{user_1_name}}\",\n\t\"password\": \"{{user_1_pass}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "user provides a username and password"
+					},
+					"response": []
+				},
+				{
+					"name": "user 1 cannot login with wrong password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "80974fb6-6dc3-44ef-b7bd-1b5bb1c343bc",
+								"exec": [
+									"pm.test(\"Returns status signifying forbidden\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.include(\"Invalid Credentials\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"user\": \"{{user_1_name}}\",\n\t\"password\": \"not_user_1_password\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "user provides a username and password"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_signed}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e2469c4b-dfcb-4a94-a6f6-29f6aec07783",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "01a77c3e-dc3b-4f3d-89a6-d8e475f22bdf",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "bee8a11b-fcbe-40b4-8ded-50c35f8ce313",
+			"key": "user_1_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"id": "40f36350-ee32-4cc9-9f17-92990b74ccfa",
+			"key": "user_1_name",
+			"value": "u1",
+			"type": "string"
+		},
+		{
+			"id": "471f3df8-f855-4f88-9b6c-496a964af13a",
+			"key": "user_1_pass",
+			"value": "pass",
+			"type": "string"
+		},
+		{
+			"id": "ef4fa620-1568-44f7-aef8-d704397a582f",
+			"key": "user_1_role",
+			"value": "user",
+			"type": "string"
+		},
+		{
+			"id": "7fa0119f-d687-40b1-8076-4d58042db98f",
+			"key": "user_2_id",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"id": "f86b6adb-342a-48f0-8593-19e1870db8c4",
+			"key": "user_2_name",
+			"value": "u2",
+			"type": "string"
+		},
+		{
+			"id": "a66373d1-fd08-442e-a1b6-3d9ec0f64a13",
+			"key": "user_2_pass",
+			"value": "pass",
+			"type": "string"
+		},
+		{
+			"id": "596063e4-1496-48a1-9f1d-c26b39a2bc60",
+			"key": "user_2_role",
+			"value": "user",
+			"type": "string"
+		},
+		{
+			"id": "0d952a82-ad9f-458d-a746-114941b558d1",
+			"key": "url",
+			"value": "localhost:3000",
+			"type": "string"
+		},
+		{
+			"id": "cbaca52d-99bf-40bc-b34d-1a1f369b0174",
+			"key": "fin_man_name",
+			"value": "finance",
+			"type": "string"
+		},
+		{
+			"id": "58312a86-e2d7-4802-a6da-03568a415dd1",
+			"key": "fin_man_pass",
+			"value": "pass",
+			"type": "string"
+		},
+		{
+			"id": "145435ea-cc2b-4650-8b96-b856b08c8df4",
+			"key": "fin_man_role",
+			"value": "finance",
+			"type": "string"
+		},
+		{
+			"id": "ae2b8aec-ddf3-4f5e-a8be-80dd96fff7f7",
+			"key": "status_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"id": "20b58c2d-7b32-47d7-a09f-b81f9a58a9fd",
+			"key": "jwt_secret",
+			"value": "potato",
+			"type": "string"
+		},
+		{
+			"id": "7d30b557-d05b-4c5e-a547-734c704123d7",
+			"key": "admin_name",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"id": "88f2f6eb-608e-49d5-825f-d4535c70a80f",
+			"key": "admin_pass",
+			"value": "pass",
+			"type": "string"
+		},
+		{
+			"id": "b5990583-fbe6-4e47-ab63-61e80a9c19c4",
+			"key": "admin_role",
+			"value": "admin",
+			"type": "string"
+		}
+	]
+}
