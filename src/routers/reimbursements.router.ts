@@ -2,6 +2,8 @@ import express from 'express';
 import { auth } from '../middleware/auth.middleware';
 import { unauthorizedHandler } from '../middleware/jwt-unauthorized-handler.middleware';
 
+import * as reimbursementsDao from '../dao/dao.reimbursements';
+
 export const reimbursementsRouter = express.Router();
 
 const PLACEHOLDER_OBJECT = {place: 'holder'};
@@ -13,7 +15,7 @@ reimbursementsRouter.get('/status/:id',
   async function (req: any, res, next) {
     if (req.user.role === 'admin' || req.user.role === 'finance') {
         res.status(200);
-        res.json(PLACEHOLDER_OBJECT); // return ReimbursementsDao.getAll(): <json object>
+        res.json(reimbursementsDao.getByStatusId(Number(req.params.id))); // return ReimbursementsDao.getAll(): <json object>
     } else {
         res.status(401);
         res.send('Invalid Credentials');
@@ -25,7 +27,7 @@ reimbursementsRouter.get('/author/userid/:id',
   async function (req: any, res, next) {
     if (req.user.role === 'admin' || req.user.role === 'finance') {
         res.status(200);
-        res.json(PLACEHOLDER_OBJECT);
+        res.json(reimbursementsDao.getByStatusId(Number(req.params.id)));
     } else {
         res.status(401);
         res.send('Invalid Credentials');
