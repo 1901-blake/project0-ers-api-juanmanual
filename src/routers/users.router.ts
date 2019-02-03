@@ -25,8 +25,6 @@ usersRouter.get('/:id',
 usersRouter.get('',
   auth,
   async function (req: any, res, next) {
-    console.log(req.user.userid);
-    console.log(req.params.id);
     if (req.user.role === 'admin' || req.user.role === 'finance') {
         res.status(200);
         const users = await userDao.getAll();
