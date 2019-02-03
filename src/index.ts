@@ -1,11 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import * as env from './.env/config';
 
 import { reimbursementsRouter } from './routers/reimbursements.router';
 import { usersRouter } from './routers/users.router';
 
-import jwt from 'jsonwebtoken';
+import { login } from './middleware/login.middleware';
 
 
 const app = express();
@@ -17,15 +16,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/login', (req, res, next) => {
-  const username = req.body.user;
-  const password = req.body.password;
-
-  jwt.sign(username, env.tokenSecret);
-  console.log('processing ', username, password);
-  res.json({username});
-
-});
+app.post('/login', login);
 
 app.use('/reimbursements', reimbursementsRouter);
 app.use('/users', usersRouter);

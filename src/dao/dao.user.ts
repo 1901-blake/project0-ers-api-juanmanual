@@ -14,16 +14,24 @@ export async function getById (id: number): Promise<Object> {
   }
 }
 
-export async function authenticate(username: string, password: string): Promise<boolean> {
+export async function authenticate(username: string, password: string): Promise<Object> {
   const connection = await connections.connect();
 
   try {
     const result = await connection.query(
-      'select count() from ers_user where username=$1 and password=$2',
+      `select userid, username, rolename from ers_user left join ers_role using (roleid)
+      where username = $1 and password = $2;`,
       [username, password]
     );
-    return result.rows[0];
+    console.log(username, password);
+    console.log(result.rows[0]);
+    const sub = result.rows[0].username;
+    const role = result.rows[0].rolename;
+    const userid = result.rows[0].userid;
+    return {sub, role, userid};
 
+  } catch {
+    return undefined;
   } finally {
     connection.release();
   }
