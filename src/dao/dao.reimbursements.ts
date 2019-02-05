@@ -20,11 +20,12 @@ export async function insert (id: number, keyPairs) {
   try {
     const {authorid, amount, datesubmitted, description, statusid} = keyPairs;
     const result = await connection.query(
-      'insert into reimbursement (authorid, amount,datesubmitted,description, statusid) values ($1,$2,$3,$4) returning *',
+      'insert into reimbursement (authorid, amount,datesubmitted,description, statusid) values ($1,$2,$3,$4, $5) returning *',
       [id || authorid,
        amount || '0.00' ,
-       datesubmitted || Date.now(),
-       description || '', statusid || 4]
+       datesubmitted || (new Date).toISOString(),
+       description || '',
+       statusid || 2]
     );
     return result;
   } finally {
