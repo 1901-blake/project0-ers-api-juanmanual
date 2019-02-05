@@ -55,7 +55,10 @@ reimbursementsRouter.patch('',
   async function (req: any, res, next) {
     console.log('the request role: ', req.user && req.user.role);
     if (req.user && (req.user.role === 'admin' || req.user.role === 'finance')) {
-      res.status(200).json(PLACEHOLDER_OBJECT);
+      const result = await reimbursementsDao.update(req.body);
+      if (result && Object.keys(result).length > 0)
+        res.status(200).json(result);
+      else res.sendStatus(400);
     } else {
       res.status(401).send('Invalid Credentials');
     }

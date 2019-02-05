@@ -47,3 +47,20 @@ export async function getAll (): Promise<Object[]> {
     connection.release();
   }
 }
+
+export async function update (keyPairs) {
+  const connection = await connections.connect();
+  try {
+    if (keyPairs.userid !== undefined) {
+      const id = keyPairs.userid;
+
+      const result = await connection.query(
+      'UPDATE ers_user SET userid = $1 WHERE userid = $1 returning * '
+      , [id]);
+      // construct and call some query
+      return result.rows[0];
+    }
+  } finally {
+    connection.release();
+  }
+}
