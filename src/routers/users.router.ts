@@ -13,8 +13,12 @@ usersRouter.get('/:id',
     if (req.user.role === 'admin'
         || req.user.role === 'finance'
         || parseInt(req.user.userid) === parseInt(req.params.id)) {
-        res.status(200);
-        res.json(userDao.getById(req.params.id));
+          const result = await userDao.getById(req.params.id);
+        if ( Object.keys(result).length !== 0) {
+          res.status(200).json(result);
+        } else {
+          res.sendStatus(400);
+        }
     } else {
         res.status(401);
         res.send('Invalid Credentials');

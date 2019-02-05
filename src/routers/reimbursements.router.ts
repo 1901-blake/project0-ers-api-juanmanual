@@ -14,8 +14,10 @@ reimbursementsRouter.get('/status/:id',
   auth,
   async function (req: any, res, next) {
     if (req.user && req.user.role === 'admin' || req.user.role === 'finance') {
-        res.status(200);
-        res.json(reimbursementsDao.getByStatusId(Number(req.params.id))); // return ReimbursementsDao.getAll(): <json object>
+        const result = await reimbursementsDao.getByStatusId(Number(req.params.id)); // return ReimbursementsDao.getAll(): <json object>
+        if (Object.keys(result).length !== 0) {
+          res.status(200).json(result);
+        } else res.sendStatus(400);
     } else {
         res.status(401);
         res.send('Invalid Credentials');
@@ -26,8 +28,11 @@ reimbursementsRouter.get('/author/userid/:id',
   auth,
   async function (req: any, res, next) {
     if (req.user && req.user.role === 'admin' || req.user.role === 'finance') {
-        res.status(200);
-        res.json(reimbursementsDao.getByStatusId(Number(req.params.id)));
+        const reimbursements = await reimbursementsDao.getByStatusId(Number(req.params.id));
+
+        if (Object.keys(reimbursements).length !== 0 ) {
+          res.status(200).json(reimbursements);
+        } else res.sendStatus(400);
     } else {
         res.status(401);
         res.send('Invalid Credentials');
