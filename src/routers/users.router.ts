@@ -21,6 +21,19 @@ usersRouter.get('/:id',
     }
   }, unauthorizedHandler);
 
+usersRouter.patch('',
+auth,
+async function (req: any, res, next) {
+  if (req.body.userid === undefined) {
+    res.sendStatus(400);
+  } else if (req.user && req.user.role === 'admin') {
+    res.status(200).json({place: 'holder'});
+  }  else {
+    res.status(401).send('Invalid Credentials');
+  }
+  next();
+}, unauthorizedHandler);
+
 
 usersRouter.get('',
   auth,
