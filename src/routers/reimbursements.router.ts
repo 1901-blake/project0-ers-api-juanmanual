@@ -6,7 +6,6 @@ import * as reimbursementsDao from '../dao/dao.reimbursements';
 
 export const reimbursementsRouter = express.Router();
 
-const PLACEHOLDER_OBJECT = {place: 'holder'};
 
 
 // GET url/reimbursements
@@ -43,8 +42,10 @@ reimbursementsRouter.post('',
   auth,
   async function (req: any, res, next) {
     if (req.user.userid || (req.user.userid === 0)) {
-      res.status(201);
-      res.json(PLACEHOLDER_OBJECT);
+      const result = await reimbursementsDao.insert(req.user.userid, req.body);
+      if (req.user && (req.user.role))
+        res.status(201).json(result);
+      else res.sendStatus(400);
     } else {
       res.status(401).send('Invalid Credentials');
     }
@@ -53,7 +54,6 @@ reimbursementsRouter.post('',
 reimbursementsRouter.patch('',
   auth,
   async function (req: any, res, next) {
-    console.log('the request role: ', req.user && req.user.role);
     if (req.user && (req.user.role === 'admin' || req.user.role === 'finance')) {
       const result = await reimbursementsDao.update(req.body);
       if (result && Object.keys(result).length > 0)

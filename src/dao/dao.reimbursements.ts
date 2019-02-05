@@ -15,6 +15,23 @@ export async function getByStatusId (id: number): Promise<Object> {
   }
 }
 
+export async function insert (id: number, keyPairs) {
+  const connection = await connections.connect();
+  try {
+    const {authorid, amount, datesubmitted, description, statusid} = keyPairs;
+    const result = await connection.query(
+      'insert into reimbursement (authorid, amount,datesubmitted,description, statusid) values ($1,$2,$3,$4) returning *',
+      [id || authorid,
+       amount || '0.00' ,
+       datesubmitted || Date.now(),
+       description || '', statusid || 4]
+    );
+    return result;
+  } finally {
+    connection.release();
+  }
+}
+
 export async function update (keyPairs) {
   const connection = await connections.connect();
   try {
