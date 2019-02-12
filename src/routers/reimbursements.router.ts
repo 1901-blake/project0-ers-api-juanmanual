@@ -42,7 +42,7 @@ reimbursementsRouter.post('',
   auth,
   async function (req: any, res, next) {
     if (req.user.userid || (req.user.userid === 0)) {
-      const result = await reimbursementsDao.insert(req.user.userid, req.body);
+      const result = await reimbursementsDao.insert(req.body, req.user.userid);
       if (req.user && (req.user.role))
         res.status(201).json(result);
       else res.sendStatus(400);

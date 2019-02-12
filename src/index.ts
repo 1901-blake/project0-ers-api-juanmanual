@@ -16,15 +16,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, resp, next) => {
-  console.log(req.get('host'));
-  (process.env.MOVIE_API_STAGE === 'prod')
-    ? resp.header('Access-Control-Allow-Origin', process.env.DEMO_APP_URL)
-    : resp.header('Access-Control-Allow-Origin', req.headers.referer.split('/').splice(0, 3).join('/'));
-  resp.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  resp.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+// app.use((req, resp, next) => {
+//   console.log(req.get('host'));
+//   (process.env.MOVIE_API_STAGE === 'prod')
+//     ? resp.header('Access-Control-Allow-Origin', process.env.DEMO_APP_URL)
+//     : resp.header('Access-Control-Allow-Origin', req.headers.referer.split('/').splice(0, 3).join('/'));
+//   resp.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   resp.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 
 app.post('/login', login);
 
