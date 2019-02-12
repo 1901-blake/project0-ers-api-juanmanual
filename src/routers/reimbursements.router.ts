@@ -3,6 +3,7 @@ import { auth } from '../middleware/auth.middleware';
 import { unauthorizedHandler } from '../middleware/jwt-unauthorized-handler.middleware';
 
 import * as reimbursementsDao from '../dao/dao.reimbursements';
+import { Reimbursement } from '../models/Reimbursement.models';
 
 export const reimbursementsRouter = express.Router();
 
@@ -42,7 +43,9 @@ reimbursementsRouter.post('',
   auth,
   async function (req: any, res, next) {
     if (req.user.userid || (req.user.userid === 0)) {
-      const result = await reimbursementsDao.insert(req.body, req.user.userid);
+      const reimbursement = new Reimbursement;
+
+      const result = await reimbursementsDao.insert(reimbursement, req.user.userid);
       if (req.user && (req.user.role))
         res.status(201).json(result);
       else res.sendStatus(400);

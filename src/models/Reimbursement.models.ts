@@ -3,18 +3,18 @@ import { ReimbursementType } from './ReimbursementType.models';
 import { ReimbursementStatus } from './ReimbursementStatus.models';
 
 export class Reimbursement {
-    private reimbursementId: number;
-    private user: User;
-    private resolver: User;
+    reimbursementId: number;
+    user: User;
+    resolver: User;
 
-    private amount: string;
-    private description: string;
+    amount: string;
+    description: string;
 
-    private status: ReimbursementStatus;
-    private type: ReimbursementType;
+    status: ReimbursementStatus;
+    type: ReimbursementType;
 
-    private dateSubmitted: Date;
-    private dateResolved: Date;
+    dateSubmitted: Date;
+    dateResolved: Date;
 
     constructor() {
         this.user = undefined;

@@ -10,8 +10,8 @@ function reimbursementsParseSql(reimbursementRow: QueryResult): Reimbursement {
       .setDateSubmitted(reimbursementRow['datesubmitted'])
       .setDescription(reimbursementRow['description'])
       .setReimbursementId(reimbursementRow['reimbursementid'])
-      .setAuthor(new User)
-      .setResolver(new User);
+      .setAuthor((new User).setUserId(reimbursementRow['roleid']))
+      .setResolver((new User).setUserId(reimbursementRow['resolverid']));
 }
 
 export async function getByStatusId (id: number): Promise<Reimbursement[]> {
@@ -31,20 +31,22 @@ export async function getByStatusId (id: number): Promise<Reimbursement[]> {
 export async function insert (reimbursement: Reimbursement, id?: number) {
   const connection = await connections.connect();
   try {
-    const authorid = reimbursement.getAuthor().getUserId();
+    const author = reimbursement.getAuthor();
     const amount = reimbursement.getAmount();
     const dateSubmitted = reimbursement.getDateSubmitted();
     const description = reimbursement.getDescription();
-    const statusId = reimbursement.getStatus().getStatusId();
+    const status = reimbursement.getStatus();
 
+    console.log('processing connection');
     const result = await connection.query(
       'insert into reimbursement (authorid, amount,datesubmitted,description, statusid) values ($1,$2,$3,$4, $5) returning *',
-      [id || authorid,
+      [id || (author && author.getUserId()) || 0,
        amount || '0.00' ,
        dateSubmitted || (new Date).toISOString(),
        description || '',
-       statusId || 2]
+       (status && status.getStatusId()) || 2]
     );
+    console.log(result);
     return reimbursementsParseSql(result);
   } finally {
     connection.release();
@@ -102,7 +104,7 @@ export async function update (rawReimbursement: Reimbursement) {
       ] );
       // construct and call some query
       return reimbursementsParseSql(result.rows[0]);
-    }
+    } else return undefined;
   } finally {
     connection.release();
   }
