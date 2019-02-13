@@ -1,10 +1,12 @@
+import { UserRole } from "./UserRole.models";
+
 export class User {
     private userId: number;
     private username: string;
     private firstname: string;
     private lastname: string;
     private email: string;
-    private role: string;
+    private role: UserRole;
 
     constructor() {
       this.userId = NaN;
@@ -12,7 +14,7 @@ export class User {
       this.firstname = '';
       this.lastname = '';
       this.email = '';
-      this.role = '';
+      this.role = new UserRole;
     }
 
     setUserId(id: number) {
@@ -55,17 +57,8 @@ export class User {
     getEmail() {
       return this.email;
     }
-    setRole(roleid: number) {
-      let role;
-      switch (roleid) {
-        case 1: role = 'user';
-          break;
-        case 2: role = 'finance';
-          break;
-        case 3: role = 'admin';
-          break;
-      }
-      this.role = role || '';
+    setRole(role: UserRole) {
+      this.role = role;
       return this;
     }
     getRole() {

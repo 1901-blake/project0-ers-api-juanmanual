@@ -1,6 +1,7 @@
 import { connections } from '../util/connections';
+import { User } from '../models/User.models';
 
-export async function getById (id: number): Promise<Object> {
+export async function getById (id: number): Promise<User> {
   const connection = await connections.connect();
   try {
     const result = await connection.query(
@@ -36,7 +37,7 @@ export async function authenticate(username: string, password: string): Promise<
 
 }
 
-export async function getAll (): Promise<Object[]> {
+export async function getAll (): Promise<User[]> {
   const connection = await connections.connect();
   try {
     const result = await connection.query(
@@ -48,11 +49,11 @@ export async function getAll (): Promise<Object[]> {
   }
 }
 
-export async function update (keyPairs) {
+export async function update (rawUser: User) {
   const connection = await connections.connect();
   try {
-    if (keyPairs.userid !== undefined) {
-      const id = keyPairs.userid;
+    if (rawUser.getUserId() !== undefined) {
+      const id = rawUser.getUserId();
 
       const result = await connection.query(
       'UPDATE ers_user SET userid = $1 WHERE userid = $1 returning * '
