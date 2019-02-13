@@ -4,7 +4,9 @@ import { unauthorizedHandler } from '../middleware/jwt-unauthorized-handler.midd
 
 import * as reimbursementsDao from '../dao/dao.reimbursements';
 import { Reimbursement } from '../models/Reimbursement.models';
-
+import { User } from '../models/User.models'
+import { ReimbursementStatus } from '../models/ReimbursementStatus.models';
+import { ReimbursementType } from '../models/ReimbursementType.models';
 export const reimbursementsRouter = express.Router();
 
 
@@ -58,11 +60,29 @@ reimbursementsRouter.post('',
 reimbursementsRouter.patch('',
   auth,
   async function (req: any, res, next) {
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'finance')) {
-      const result = await reimbursementsDao.update(req.body);
+    if (req.body.reimbursementId === undefined) {
+      if(!req.user ) {
+        res.sendStatus(401);
+      } else if ( req.user.role !== 'admin' || req.user.role !== 'finance') {
+       res.status(401).send("Invalid Credentials");
+      } else res.sendStatus(400);
+
+    } else if (req.user && (req.user.role === 'admin' || req.user.role === 'finance')) {
+      const reimbursement = (new Reimbursement)
+        .setAmount(req.body.amount)
+        .setAuthor((new User).setUserId(req.body.userId))
+        .setDateResolved(new Date())
+        .setDescription(req.body.description)
+        .setResolver(req.user.userid)
+        .setReimbursementId(req.body.reimbursementId)
+        .setStatus((new ReimbursementStatus).setStatusId(req.body.statusId))
+        .setType((new ReimbursementType).setTypeId(req.body.typeId));
+        
+      
+      const result = await reimbursementsDao.update(reimbursement);
       if (result && Object.keys(result).length > 0)
         res.status(200).json(result);
-      else res.sendStatus(400);
+      else {res.sendStatus(400);}
     } else {
       res.status(401).send('Invalid Credentials');
     }

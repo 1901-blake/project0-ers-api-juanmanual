@@ -70,7 +70,6 @@ export async function getByStatusId (id: number): Promise<Reimbursement[]> {
         [id]
     );
 
-    console.log(result);
     return result.rows.map(reimbursementRow => reimbursementsParseSql(reimbursementRow));
 
   } finally {
@@ -87,7 +86,6 @@ export async function insert (reimbursement: Reimbursement, id?: number) {
     const description = reimbursement.getDescription();
     const status = reimbursement.getStatus();
 
-    console.log('processing connection');
     const result = await connection.query(
       'insert into reimbursement (authorid, amount,datesubmitted,description, statusid) values ($1,$2,$3,$4, $5) returning *',
       [id || (author && author.getUserId()) || 0,
@@ -146,15 +144,19 @@ export async function update (rawReimbursement: Reimbursement) {
       typeid = $7 WHERE reimbursementid = $8 returning *;`
       , [ updatedReimbursement.getAmount() || '0.0',
           updatedReimbursement.getAuthor().getUserId() || 0,
-          updatedReimbursement.getDateResolved().toISOString || (new Date).toISOString,
+          updatedReimbursement.getDateResolved().toISOString() || (new Date).toISOString(),
           updatedReimbursement.getDescription() || '',
           updatedReimbursement.getResolver().getUserId() || 0,
           updatedReimbursement.getStatus().getStatusId() || 2,
-          updatedReimbursement.getType().getTypeId() || 4
+          updatedReimbursement.getType().getTypeId() || 4,
+          rawReimbursement.getReimbursementId()
       ] );
       // construct and call some query
       return reimbursementsParseSql(result.rows[0]);
-    } else return undefined;
+    } else {
+      console.log("bad id = " , id);
+     return undefined;
+    }
   } finally {
     connection.release();
   }

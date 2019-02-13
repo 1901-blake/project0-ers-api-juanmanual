@@ -30,7 +30,11 @@ usersRouter.patch('',
 auth,
 async function (req: any, res, next) {
   if (req.body.userId === undefined) {
-    res.sendStatus(400);
+    if(!req.user ){
+      res.status(401).send('Invalid Credentials');
+    } else if (req.user.role !== 'admin') {
+      res.status(401).send('Invalid Credentials');
+    } else res.sendStatus(400);
   } else if (req.user && req.user.role === 'admin') {
     const user = (new User)
       .setUserId(req.body.userId)
