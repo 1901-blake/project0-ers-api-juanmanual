@@ -68,12 +68,14 @@ reimbursementsRouter.patch('',
       } else res.sendStatus(400);
 
     } else if (req.user && (req.user.role === 'admin' || req.user.role === 'finance')) {
+      
+     try {
       const reimbursement = (new Reimbursement)
         .setAmount(req.body.amount)
         .setAuthor((new User).setUserId(req.body.userId))
         .setDateResolved(new Date())
         .setDescription(req.body.description)
-        .setResolver(req.user.userid)
+        .setResolver((new User).setUserId(req.user.userid))
         .setReimbursementId(req.body.reimbursementId)
         .setStatus((new ReimbursementStatus).setStatusId(req.body.statusId))
         .setType((new ReimbursementType).setTypeId(req.body.typeId));
@@ -83,6 +85,7 @@ reimbursementsRouter.patch('',
       if (result && Object.keys(result).length > 0)
         res.status(200).json(result);
       else {res.sendStatus(400);}
+     } finally {res.sendStatus(400)}
     } else {
       res.status(401).send('Invalid Credentials');
     }

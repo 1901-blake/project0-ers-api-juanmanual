@@ -3,6 +3,8 @@ import { Reimbursement } from '../models/Reimbursement.models';
 import { QueryResult } from 'pg';
 import { User } from '../models/User.models';
 import { UserRole } from '../models/UserRole.models';
+import { ReimbursementStatus } from '../models/ReimbursementStatus.models';
+import { ReimbursementType } from '../models/ReimbursementType.models';
 
 function reimbursementsParseSql(reimbursementRow: QueryResult): Reimbursement {
   return (new Reimbursement)
@@ -113,25 +115,26 @@ export async function update (rawReimbursement: Reimbursement) {
       if (oldReimbursement.rows.length === 0) {
         return undefined;
       }
-      const updatedReimbursement = reimbursementsParseSql(oldReimbursement);
+      const old: Reimbursement = reimbursementsParseSql(oldReimbursement.rows[0]);
+      const newReimbursement: Reimbursement = old
+        .setAmount(rawReimbursement.getAmount() || old.getAmount())
+        .setDateResolved(rawReimbursement.getDateResolved() || old.getDateResolved())
+        .setDateSubmitted(rawReimbursement.getDateSubmitted() || old.getDateSubmitted())
+        .setDescription(rawReimbursement.getDescription() || old.getDescription())
+        .setReimbursementId(old.getReimbursementId())
+        .setAuthor((new User)
+          .setUserId(rawReimbursement.getAuthor().getUserId() || old.getAuthor().getUserId()))
+        .setResolver((new User)
+          .setUserId(rawReimbursement.getResolver().getUserId() || old.getResolver().getUserId()))
+        .setStatus((new ReimbursementStatus)
+          .setStatusId((rawReimbursement.getStatus()
+            && rawReimbursement.getStatus().getStatusId()) || old.getStatus().getStatusId()))
+        .setType((new ReimbursementType)
+          .setTypeId(rawReimbursement.getType().getTypeId() || old.getType().getTypeId()))
+          
 
-      const newDateResolved = rawReimbursement.getDateResolved();
-      const newAuthor = rawReimbursement.getAuthor();
-      const newResolver = rawReimbursement.getResolver();
-      const newStatus = rawReimbursement.getStatus();
-      const newType = rawReimbursement.getType();
-      const newAmount = rawReimbursement.getAmount();
-      const newDescription = rawReimbursement.getDescription();
 
       // update iff sane value
-
-      newAuthor && updatedReimbursement.setAuthor(newAuthor);
-      newResolver && updatedReimbursement.setResolver(newResolver);
-      newStatus && updatedReimbursement.setStatus(newStatus);
-      newType && updatedReimbursement.setType(newType);
-      newAmount && updatedReimbursement.setAmount(newAmount);
-      newDateResolved && updatedReimbursement.setDateResolved(newDateResolved);
-      newDescription && updatedReimbursement.setDescription(newDescription);
 
       const result = await connection.query(
      `UPDATE reimbursement
@@ -142,13 +145,13 @@ export async function update (rawReimbursement: Reimbursement) {
       resolverid = $5,
       statusid = $6,
       typeid = $7 WHERE reimbursementid = $8 returning *;`
-      , [ updatedReimbursement.getAmount() || '0.0',
-          updatedReimbursement.getAuthor().getUserId() || 0,
-          updatedReimbursement.getDateResolved().toISOString() || (new Date).toISOString(),
-          updatedReimbursement.getDescription() || '',
-          updatedReimbursement.getResolver().getUserId() || 0,
-          updatedReimbursement.getStatus().getStatusId() || 2,
-          updatedReimbursement.getType().getTypeId() || 4,
+      , [ newReimbursement.getAmount(),
+          newReimbursement.getAuthor().getUserId(),
+          newReimbursement.getDateResolved().toISOString() || (new Date).toISOString(),
+          newReimbursement.getDescription(),
+          newReimbursement.getResolver().getUserId(),
+          newReimbursement.getStatus()?newReimbursement.getStatus().getStatusId():undefined,
+          newReimbursement.getType()?newReimbursement.getType().getTypeId():undefined,
           rawReimbursement.getReimbursementId()
       ] );
       // construct and call some query
