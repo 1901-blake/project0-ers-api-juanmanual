@@ -13,6 +13,14 @@ function reimbursementsParseSql(reimbursementRow: QueryResult): Reimbursement {
       .setDateSubmitted(reimbursementRow['datesubmitted'])
       .setDescription(reimbursementRow['description'])
       .setReimbursementId(reimbursementRow['reimbursementid'])
+      .setType(
+        (new ReimbursementType)
+        .setTypeId(reimbursementRow['typeid'])
+      )
+      .setStatus(
+        (new ReimbursementStatus)
+        .setStatusId(reimbursementRow['statusid'])
+      )
       .setAuthor(
         (new User)
         .setEmail(reimbursementRow['a_email'])
@@ -96,7 +104,6 @@ export async function insert (reimbursement: Reimbursement, id?: number) {
        description || '',
        (status && status.getStatusId()) || 2]
     );
-    console.log(result);
     return reimbursementsParseSql(result);
   } finally {
     connection.release();
@@ -108,14 +115,37 @@ export async function update (rawReimbursement: Reimbursement) {
   try {
     const id = rawReimbursement.getReimbursementId();
     if (id || id === 0) {
+      console.log("id = " + id);
       const oldReimbursement = await connection.query(
-        'SELECT * FROM reimbursement where reimbursementid = $1',
+        `select rmb.*, 
+        a.email as a_email, 
+        a.firstname as a_firstname, 
+        a.lastname as a_lastname, 
+        a.roleid as a_roleid, 
+        a.username as a_username,
+        a_role.rolename as a_role_name,
+        res.email as res_email,
+        res.firstname as res_firstname, 
+        res.lastname as res_lastname, 
+        res.roleid as res_roleid,
+        res.username as res_username,
+        res_role.rolename as res_role_name
+        from 
+        reimbursement as rmb
+        left JOIN ers_user AS a
+        ON rmb.authorid = a.userid
+        left join ers_role as a_role
+        on a.roleid = a_role.roleid
+        left join ers_user as res
+        on rmb.resolverid = res.userid
+        left join ers_role as res_role
+        on res.roleid = res_role.roleid
+        where rmb.reimbursementid = $1;`,
         [id]
       );
-      if (oldReimbursement.rows.length === 0) {
-        return undefined;
-      }
+      console.log("old reimbursement: ");
       const old: Reimbursement = reimbursementsParseSql(oldReimbursement.rows[0]);
+      console.log(old);
       const newReimbursement: Reimbursement = old
         .setAmount(rawReimbursement.getAmount() || old.getAmount())
         .setDateResolved(rawReimbursement.getDateResolved() || old.getDateResolved())

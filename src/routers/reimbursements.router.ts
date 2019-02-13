@@ -80,12 +80,13 @@ reimbursementsRouter.patch('',
         .setStatus((new ReimbursementStatus).setStatusId(req.body.statusId))
         .setType((new ReimbursementType).setTypeId(req.body.typeId));
         
-      
       const result = await reimbursementsDao.update(reimbursement);
-      if (result && Object.keys(result).length > 0)
-        res.status(200).json(result);
-      else {res.sendStatus(400);}
-     } finally {res.sendStatus(400)}
+      console.log(result);
+      res.status(200).json(result);
+     } catch (error){
+       console.log(error);
+       console.log("failed here");
+     }
     } else {
       res.status(401).send('Invalid Credentials');
     }
