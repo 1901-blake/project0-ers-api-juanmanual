@@ -30,7 +30,7 @@ export async function getById (id: number): Promise<User> {
   }
 }
 
-export async function authenticate(username: string, password: string): Promise<Object> {
+export async function authenticate(username: string, password: string): Promise<any> {
   const connection = await connections.connect();
 
   try {

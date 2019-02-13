@@ -10,7 +10,11 @@ export async function login(req: any, res, next) {
 
   if (authPayload) {
     const userPayload = authPayload;
-    res.send(jwt.sign(userPayload, env.tokenSecret));
+    const id = userPayload.userid;
+    const token = jwt.sign(userPayload, env.tokenSecret);
+    const user = await userDao.getById(id);
+
+    res.send({token: token, user: user});
   } else {
     res.status(400).send('Invalid Credentials');
   }
