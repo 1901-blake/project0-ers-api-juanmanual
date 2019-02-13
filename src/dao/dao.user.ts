@@ -89,8 +89,6 @@ export async function update (rawUser: User) {
         .setRole((new UserRole).setRoleId(rawUser.getRole().getRoleId() || old.getRole().getRoleId()))
         .setUser(rawUser.getUserName() || old.getUserName())
         .setUserId(rawUser.getUserId() || old.getUserId());
-
-      console.log(newUser);
       
       const result = await connection.query(
         `

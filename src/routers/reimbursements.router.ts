@@ -17,7 +17,6 @@ reimbursementsRouter.get('/status/:id',
   async function (req: any, res, next) {
     if (req.user && req.user.role === 'admin' || req.user.role === 'finance') {
         const result = await reimbursementsDao.getByStatusId(Number(req.params.id)); // return ReimbursementsDao.getAll(): <json object>
-        console.log(result);
         if (Object.keys(result).length !== 0) {
           res.status(200).json(result);
         } else res.sendStatus(400);
