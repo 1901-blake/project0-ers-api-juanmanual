@@ -3,6 +3,7 @@ import { auth } from '../middleware/auth.middleware';
 import { unauthorizedHandler } from '../middleware/jwt-unauthorized-handler.middleware';
 
 import * as userDao from '../dao/dao.user';
+import { User } from '../models/User.models';
 
 export const usersRouter = express.Router();
 
@@ -28,10 +29,16 @@ usersRouter.get('/:id',
 usersRouter.patch('',
 auth,
 async function (req: any, res, next) {
-  if (req.body.userid === undefined) {
+  if (req.body.userId === undefined) {
     res.sendStatus(400);
   } else if (req.user && req.user.role === 'admin') {
-    const results = await userDao.update(req.body);
+    const user = (new User)
+      .setUserId(req.body.userId)
+      .setFirstName(req.body.firstname)
+      .setLastName(req.body.lastname)
+      .setEmail(req.body.email);
+
+    const results = await userDao.update(user);
     if (results && Object.keys(results).length > 0)
       res.status(200).json(results);
 
