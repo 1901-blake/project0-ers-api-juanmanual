@@ -81,8 +81,7 @@ reimbursementsRouter.patch('',
         .setType((new ReimbursementType).setTypeId(req.body.typeId));
         
       const result = await reimbursementsDao.update(reimbursement);
-      console.log(result);
-      res.status(200).json(result);
+      result?res.status(200).json(result):res.sendStatus(400);
      } catch (error){
        console.log(error);
        console.log("failed here");

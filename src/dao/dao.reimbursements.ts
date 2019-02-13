@@ -7,6 +7,11 @@ import { ReimbursementStatus } from '../models/ReimbursementStatus.models';
 import { ReimbursementType } from '../models/ReimbursementType.models';
 
 function reimbursementsParseSql(reimbursementRow: QueryResult): Reimbursement {
+  
+  if(!reimbursementRow)
+  {
+    return undefined;
+  }
   return (new Reimbursement)
       .setAmount(reimbursementRow['amount'])
       .setDateResolved(reimbursementRow['dateresolved'])
@@ -115,7 +120,6 @@ export async function update (rawReimbursement: Reimbursement) {
   try {
     const id = rawReimbursement.getReimbursementId();
     if (id || id === 0) {
-      console.log("id = " + id);
       const oldReimbursement = await connection.query(
         `select rmb.*, 
         a.email as a_email, 
@@ -143,9 +147,11 @@ export async function update (rawReimbursement: Reimbursement) {
         where rmb.reimbursementid = $1;`,
         [id]
       );
-      console.log("old reimbursement: ");
       const old: Reimbursement = reimbursementsParseSql(oldReimbursement.rows[0]);
-      console.log(old);
+
+      if(!old) {
+        return undefined;
+      }
       const newReimbursement: Reimbursement = old
         .setAmount(rawReimbursement.getAmount() || old.getAmount())
         .setDateResolved(rawReimbursement.getDateResolved() || old.getDateResolved())
@@ -165,7 +171,7 @@ export async function update (rawReimbursement: Reimbursement) {
 
 
       // update iff sane value
-
+      try{
       const result = await connection.query(
      `UPDATE reimbursement
       SET amount = $1,
@@ -184,10 +190,11 @@ export async function update (rawReimbursement: Reimbursement) {
           newReimbursement.getType()?newReimbursement.getType().getTypeId():undefined,
           rawReimbursement.getReimbursementId()
       ] );
+      
       // construct and call some query
       return reimbursementsParseSql(result.rows[0]);
+    } catch {return undefined}
     } else {
-      console.log("bad id = " , id);
      return undefined;
     }
   } finally {
